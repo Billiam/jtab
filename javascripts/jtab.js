@@ -30,6 +30,8 @@
 // define the jtab class
 //
 
+import Raphael from 'raphael';
+
 var jtab = {
   Version : '1.3.1',
   element_count:0, //TODO:
@@ -446,15 +448,16 @@ jtabChord.prototype.setCustomChordArray = function(){
 };
 
 jtabChord.prototype.parseCustomChordArrayFromToken = function() {
-  notes = this.fullChordName.replace(/(%|\[.+])/g, '');
-  pairs = notes.split('.');
+  var notes = this.fullChordName.replace(/(%|\[.+])/g, '');
+  var pairs = notes.split('.');
   if (pairs.length < 6){
     this.isValid = false;
     return;
   }
   this.isValid = true;
 
-  array = [];
+  var array = [];
+  var pair;
   for (var i = 0; i < pairs.length; i++){
     pair = pairs[i].split('/')
     if (pair[0].match(/X/)){
@@ -471,7 +474,7 @@ jtabChord.prototype.parseCustomChordArrayFromToken = function() {
 
   // `array` is an array of string/fretnumber pairs like [0,1].
 
-  fingeredFrets = array.filter(function(pair){
+  var fingeredFrets = array.filter(function(pair){
     // get only the pairs with two elements
     return pair.length === 2;
   }).map(function(pair){
@@ -490,7 +493,7 @@ jtabChord.prototype.parseCustomChordArrayFromToken = function() {
 
   //find all the fret positions which arent X or 0. I'm sure there's a better way to do this.
 
-  min = Math.min.apply( Math, fingeredFrets );
+  var min = Math.min.apply( Math, fingeredFrets );
 
   array.unshift(min-1);
   return array;
@@ -547,47 +550,48 @@ jtabChord.prototype.shiftChordArray = function(atFret,modelChord) { // shift cho
 //
 // define extensions to the Raphael class
 //
+Raphael.fn.jtab = {}
 
-Raphael.fn.tabtype = 0;  // 0 = none, 1 = tab & chord, 2 = chord, 3 = tab
-Raphael.fn.has_chord = false;
-Raphael.fn.has_tab = false;
+Raphael.fn.jtab.tabtype = 0;  // 0 = none, 1 = tab & chord, 2 = chord, 3 = tab
+Raphael.fn.jtab.has_chord = false;
+Raphael.fn.jtab.has_tab = false;
 
-Raphael.fn.debug = false;
-Raphael.fn.scale = 1;
-Raphael.fn.margin_top = 36;
-Raphael.fn.margin_bottom = 10;
-Raphael.fn.margin_left = 16;
-Raphael.fn.margin_right = 10;
+Raphael.fn.jtab.debug = false;
+Raphael.fn.jtab.scale = 1;
+Raphael.fn.jtab.margin_top = 36;
+Raphael.fn.jtab.margin_bottom = 10;
+Raphael.fn.jtab.margin_left = 16;
+Raphael.fn.jtab.margin_right = 10;
 
-Raphael.fn.current_offset = Raphael.fn.margin_left;
+Raphael.fn.jtab.current_offset = Raphael.fn.jtab.margin_left;
 
-Raphael.fn.string_spacing = 16;
-Raphael.fn.strings_drawn = 6;
-Raphael.fn.fret_spacing = 16;
-Raphael.fn.frets_drawn = 4;
-Raphael.fn.note_radius = 7;
+Raphael.fn.jtab.string_spacing = 16;
+Raphael.fn.jtab.strings_drawn = 6;
+Raphael.fn.jtab.fret_spacing = 16;
+Raphael.fn.jtab.frets_drawn = 4;
+Raphael.fn.jtab.note_radius = 7;
 
-Raphael.fn.fret_width = Raphael.fn.string_spacing * ( Raphael.fn.strings_drawn - 1 );
-Raphael.fn.fret_height = Raphael.fn.fret_spacing * (Raphael.fn.frets_drawn + 0.5);
-Raphael.fn.chord_width = Raphael.fn.margin_left + Raphael.fn.fret_width + Raphael.fn.string_spacing + Raphael.fn.margin_right;
-Raphael.fn.chord_height = Raphael.fn.margin_top + Raphael.fn.fret_height + Raphael.fn.margin_bottom;
+Raphael.fn.jtab.fret_width = Raphael.fn.jtab.string_spacing * ( Raphael.fn.jtab.strings_drawn - 1 );
+Raphael.fn.jtab.fret_height = Raphael.fn.jtab.fret_spacing * (Raphael.fn.jtab.frets_drawn + 0.5);
+Raphael.fn.jtab.chord_width = Raphael.fn.jtab.margin_left + Raphael.fn.jtab.fret_width + Raphael.fn.jtab.string_spacing + Raphael.fn.jtab.margin_right;
+Raphael.fn.jtab.chord_height = Raphael.fn.jtab.margin_top + Raphael.fn.jtab.fret_height + Raphael.fn.jtab.margin_bottom;
 
-Raphael.fn.tab_current_string = 0; // 1,2,3,4,5,6 or 0 = not set
-Raphael.fn.tab_margin_top = 10;
-Raphael.fn.tab_top = Raphael.fn.chord_height + Raphael.fn.tab_margin_top;
-Raphael.fn.tab_spacing = Raphael.fn.fret_spacing;
-Raphael.fn.tab_height = Raphael.fn.tab_spacing * 5;
-Raphael.fn.tab_char_width = 8;
+Raphael.fn.jtab.tab_current_string = 0; // 1,2,3,4,5,6 or 0 = not set
+Raphael.fn.jtab.tab_margin_top = 10;
+Raphael.fn.jtab.tab_top = Raphael.fn.jtab.chord_height + Raphael.fn.jtab.tab_margin_top;
+Raphael.fn.jtab.tab_spacing = Raphael.fn.jtab.fret_spacing;
+Raphael.fn.jtab.tab_height = Raphael.fn.jtab.tab_spacing * 5;
+Raphael.fn.jtab.tab_char_width = 8;
 
-Raphael.fn.total_height = Raphael.fn.tab_top + Raphael.fn.tab_height + Raphael.fn.margin_bottom;
+Raphael.fn.jtab.total_height = Raphael.fn.jtab.tab_top + Raphael.fn.jtab.tab_height + Raphael.fn.jtab.margin_bottom;
 
-Raphael.fn.color = "#000";
-Raphael.fn.fingering_text_color = "#fff";
-Raphael.fn.tab_text_color = "#000";
+Raphael.fn.jtab.color = "#000";
+Raphael.fn.jtab.fingering_text_color = "#fff";
+Raphael.fn.jtab.tab_text_color = "#000";
 
 
 // debug helper - puts grid marks on the rendered image
-Raphael.fn.debug_grid = function (width) {
+Raphael.fn.jtab.debug_grid = function (width) {
   // h ticks
   this.path(this.svg_params(this.current_offset, 0,0,4)).attr({stroke: this.color, "stroke-width":0.2 })
   this.path(this.svg_params(  this.current_offset + this.margin_left, 0,0,2)).attr({stroke: this.color, "stroke-width":0.2 })
@@ -602,21 +606,21 @@ Raphael.fn.debug_grid = function (width) {
 
 
 // step the current position for drawing
-Raphael.fn.increment_offset = function (width) {
+Raphael.fn.jtab.increment_offset = function (width) {
   w = ( width === undefined ) ? this.chord_width : width;
   if (this.debug) this.debug_grid(w);
   this.current_offset += w;
   this.setSize( this.current_offset, this.total_height );
 }
 
-Raphael.fn.svg_params = function(x,y,l1,l2) {
+Raphael.fn.jtab.svg_params = function(x,y,l1,l2) {
   // http://www.w3.org/TR/SVG/paths.html#PathData --helpful reading
   var move_line_to = "m"+x+" "+y+"l"+l1+" "+l2
   if(arguments.length === 4) return move_line_to
 }
 
 // draw the fretboard
-Raphael.fn.chord_fretboard = function ( position, chord_name ) {
+Raphael.fn.jtab.chord_fretboard = function ( position, chord_name ) {
   var fret_left = this.current_offset + this.margin_left;
   // conventional fret labels
   var fret_labels = [ '', '', '', 'III', '', 'V', '', 'VII', '', 'IX', '', '', 'XII', '', '', 'XV', '', 'XVII', '', 'XIX', '', 'XXI', '' ];
@@ -653,7 +657,7 @@ Raphael.fn.chord_fretboard = function ( position, chord_name ) {
 
 
 // draw a stroke (/)
-Raphael.fn.stroke = function () {
+Raphael.fn.jtab.stroke = function () {
 
   if (this.has_tab) {
     var width = this.tab_char_width * 3;
@@ -676,7 +680,7 @@ Raphael.fn.stroke = function () {
 
 
 // draw a bar
-Raphael.fn.bar = function () {
+Raphael.fn.jtab.bar = function () {
 
   var bar_stroke;
   if (this.has_tab) {
@@ -687,17 +691,17 @@ Raphael.fn.bar = function () {
     this.increment_offset(width);
 
   } else if (this.has_chord) {
-    var fret_left = this.current_offset + this.margin_left;
+    // var fret_left = this.current_offset + this.margin_left;
     bar_stroke=this.path(this.svg_params(this.current_offset + this.margin_left, this.margin_top,0, 0, this.fret_height))
     this.increment_offset( this.margin_left + this.margin_right );
   }
-    bar_stroke.attr({stroke: this.color, "stroke-width":1 })
 
+  bar_stroke.attr({stroke: this.color, "stroke-width":1 })
 }
 
 
 // draw double bar
-Raphael.fn.doublebar = function () {
+Raphael.fn.jtab.doublebar = function () {
   var path_1, path_2;
 
   if (this.has_tab) {
@@ -725,7 +729,7 @@ Raphael.fn.doublebar = function () {
 
 
 // draw a note in a chord
-Raphael.fn.chord_note = function (position, string_number, note) {
+Raphael.fn.jtab.chord_note = function (position, string_number, note) {
   // NB: internal string_number in chords counts from low to high
   var fret_number = note[0];
   var fret_left = this.current_offset + this.margin_left;
@@ -755,7 +759,7 @@ Raphael.fn.chord_note = function (position, string_number, note) {
 
 
 // extend the tab drawing area
-Raphael.fn.tab_extend = function (width) {
+Raphael.fn.jtab.tab_extend = function (width) {
   if (this.has_tab === false) return;
   for (var i = 0; i < this.strings_drawn; i++ ) {
     this.path(this.svg_params(this.current_offset, this.tab_top  + (i * this.tab_spacing),width, 0)).attr({stroke: this.color})
@@ -764,7 +768,7 @@ Raphael.fn.tab_extend = function (width) {
 
 
 // start the tab
-Raphael.fn.tab_start = function () {
+Raphael.fn.jtab.tab_start = function () {
   if (this.has_tab === false) return;
   var width = this.tab_char_width * 3;
   //  start bar
@@ -783,7 +787,7 @@ Raphael.fn.tab_start = function () {
 
 
 // draw an individual note in the tab
-Raphael.fn.draw_tab_note = function (string_number, token, left_offset) {
+Raphael.fn.jtab.draw_tab_note = function (string_number, token, left_offset) {
   // NB: internal string_number in tab counts from high to low
   this.text(this.current_offset + left_offset,
           this.tab_top + this.tab_spacing * (string_number - 1),
@@ -791,7 +795,7 @@ Raphael.fn.draw_tab_note = function (string_number, token, left_offset) {
 }
 
 // gets string number from token $[1-6|EADGBe]
-Raphael.fn.get_string_number = function (token) {
+Raphael.fn.jtab.get_string_number = function (token) {
   var string_number = null;
   if ( token.match( /^\$[1-6]/ ) != null ) {
      string_number = token.substr(1,1);
@@ -806,7 +810,7 @@ Raphael.fn.get_string_number = function (token) {
 // returns:
 //   false = not a full chord representation
 //   array = array of notes (low to high)
-Raphael.fn.get_fullchord_notes = function (token) {
+Raphael.fn.jtab.get_fullchord_notes = function (token) {
   var rc = false;
   if ( token.match( /[^\.xX0-9]/ ) != null ) {
     rc = false;
@@ -823,7 +827,7 @@ Raphael.fn.get_fullchord_notes = function (token) {
 
 
 // draw a token on the tab
-Raphael.fn.tab_note = function (token) {
+Raphael.fn.jtab.tab_note = function (token) {
   if (this.has_tab === false) return;
 
   var width, i;
@@ -871,7 +875,7 @@ Raphael.fn.tab_note = function (token) {
 
 
 // main drawing routine entry point: to render a token - chord or tab
-Raphael.fn.render_token = function (token) {
+Raphael.fn.jtab.render_token = function (token) {
 
   var c = new jtabChord(token);
 
@@ -923,27 +927,27 @@ jtab.characterize = function (notation) {
   var gotChord =  gotNormalChord || gotCustomChord ;
 
   // set defaults - apply scaling here (TODO)
-  Raphael.fn.current_offset = Raphael.fn.margin_left;
+  Raphael.fn.jtab.current_offset = Raphael.fn.jtab.margin_left;
   if ( gotChord && gotTab ) { // chord and tab
     tabtype = 1;
-    Raphael.fn.has_chord = true;
-    Raphael.fn.has_tab = true;
-    Raphael.fn.tab_top = Raphael.fn.chord_height + Raphael.fn.tab_margin_top;
-    Raphael.fn.total_height = Raphael.fn.tab_top + Raphael.fn.tab_height + Raphael.fn.margin_bottom;
+    Raphael.fn.jtab.has_chord = true;
+    Raphael.fn.jtab.has_tab = true;
+    Raphael.fn.jtab.tab_top = Raphael.fn.jtab.chord_height + Raphael.fn.jtab.tab_margin_top;
+    Raphael.fn.jtab.total_height = Raphael.fn.jtab.tab_top + Raphael.fn.jtab.tab_height + Raphael.fn.jtab.margin_bottom;
   } else if ( gotChord ) { // chord only
     tabtype = 2;
-    Raphael.fn.has_chord = true;
-    Raphael.fn.has_tab = false;
-    Raphael.fn.tab_top = Raphael.fn.chord_height + Raphael.fn.tab_margin_top;
-    Raphael.fn.total_height = Raphael.fn.chord_height;
+    Raphael.fn.jtab.has_chord = true;
+    Raphael.fn.jtab.has_tab = false;
+    Raphael.fn.jtab.tab_top = Raphael.fn.jtab.chord_height + Raphael.fn.jtab.tab_margin_top;
+    Raphael.fn.jtab.total_height = Raphael.fn.jtab.chord_height;
   } else if ( gotTab ) { // tab only
     tabtype = 3;
-    Raphael.fn.has_chord = false;
-    Raphael.fn.has_tab = true;
-    Raphael.fn.tab_top = Raphael.fn.tab_margin_top;
-    Raphael.fn.total_height = Raphael.fn.tab_top + Raphael.fn.tab_height + Raphael.fn.margin_bottom;
+    Raphael.fn.jtab.has_chord = false;
+    Raphael.fn.jtab.has_tab = true;
+    Raphael.fn.jtab.tab_top = Raphael.fn.jtab.tab_margin_top;
+    Raphael.fn.jtab.total_height = Raphael.fn.jtab.tab_top + Raphael.fn.jtab.tab_height + Raphael.fn.jtab.margin_bottom;
   }
-  Raphael.fn.tabtype = tabtype;
+  Raphael.fn.jtab.tabtype = tabtype;
   return tabtype;
 }
 
@@ -967,14 +971,14 @@ jtab.setPalette = function (element) {
   if (!fgColor) {
     fgColor = '#000';
   }
-  Raphael.fn.color = fgColor;
-  Raphael.fn.tab_text_color = fgColor;
+  Raphael.fn.jtab.color = fgColor;
+  Raphael.fn.jtab.tab_text_color = fgColor;
 
-  bgColor = jtab.getStyle(element, 'background-color' );
+  var bgColor = jtab.getStyle(element, 'background-color' );
   if (!bgColor || (bgColor === 'transparent') || (bgColor === 'rgba(0, 0, 0, 0)')) {
     bgColor = '#fff';
   }
-  Raphael.fn.fingering_text_color = bgColor;
+  Raphael.fn.jtab.fingering_text_color = bgColor;
 }
 
 // Render the tab for a given +element+.
@@ -992,10 +996,10 @@ jtab.render = function (element,notation_text) {
 
   // add the Raphael canvas in its own DIV. this gets around an IE6 issue with not removing previous renderings
   element.outerHTML = '<div id="'+rndID+'"></div>';
-  element.style.height = Raphael.fn.total_height
+  element.style.height = Raphael.fn.jtab.total_height
 
   jtab.setPalette(element);
-  canvas = Raphael(rndID, 80, Raphael.fn.total_height );
+  var canvas = Raphael(rndID, 80, Raphael.fn.jtab.total_height );
   canvas.tab_start();
 
   var tokens = notation.split(/\s/);
@@ -1020,3 +1024,5 @@ jtab.init = function() {
     jtab.renderimplicit(null);
   }
 }
+
+export default jtab;
